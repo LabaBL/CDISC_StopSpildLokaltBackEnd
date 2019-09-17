@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDISC_StopLokaltSpildBackEnd", "CDISC_StopLokaltSpildBackEnd\CDISC_StopLokaltSpildBackEnd.csproj", "{BFE46CBD-5AF8-4001-B866-23E5665A4317}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDISC_StopSpildLokaltBackEnd", "CDISC_StopLokaltSpildBackEnd\CDISC_StopSpildLokaltBackEnd.csproj", "{BFE46CBD-5AF8-4001-B866-23E5665A4317}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
