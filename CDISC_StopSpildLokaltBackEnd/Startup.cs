@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CDISC_StopLokaltSpildBackEnd {
+namespace CDISC_StopSpildLokaltBackEnd {
     public class Startup {
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
