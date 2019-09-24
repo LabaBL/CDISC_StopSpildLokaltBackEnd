@@ -17,36 +17,41 @@ namespace CDISC_StopSpildLokaltBackEnd {
             _context = context;
         }
 
-        // GET: api/values
+        // GET: api/volunteers/team/<ID>
         [HttpGet]
-        public IEnumerable<string> Get() {
+        public IEnumerable<string> GetTeamVolunteers() {
             throw new NotImplementedException();
         }
 
-        // GET api/<GUID>
+        // GET: api/volunteer/identification/<ID>
         [HttpGet("{id}")]
-        public async Task<Volunteer> Get(Guid id) {
-#pragma warning disable CS1701 // Assuming assembly reference matches identity
-            return await _context.Volunteers.Where(v => v.Id.Equals(id)).FirstOrDefaultAsync<Volunteer>();    //.First  SingleOrDefaultAsync(v => v.Id.Equals(id));
-#pragma warning restore CS1701 // Assuming assembly reference matches identity
+        public async Task<Identification> Identification(int id) {
+            //TODO How is an Identification updated? (IDEA: Thread created by Cron job that updates all Identifications daily)
+            var volunteer = await _context.Volunteers.Where(v => v.Id == id).FirstOrDefaultAsync<Volunteer>();
+            return volunteer.Identification;    
         }
 
-        // POST api/values
+
+        // GET api/volunteer/<ID>
+        [HttpGet("{id}")]
+        public async Task<Volunteer> Get(int id) {
+            return await _context.Volunteers.Where(v => v.Id == id).FirstOrDefaultAsync<Volunteer>();    //.First  SingleOrDefaultAsync(v => v.Id.Equals(id));
+        }
+
+        // POST api/volunteer
         [HttpPost]
-        public void Post([FromBody]string value) {
-            throw new NotImplementedException();
+        public async Task<int> Post([FromBody]Volunteer volunteer) {
+            volunteer.CreatedTs = DateTime.Now;
+            await _context.AddAsync(volunteer);
+            await _context.SaveChangesAsync();
+            return volunteer.Id; //TODO Test that ID been set here
         }
 
-        // PUT api/values/5
+        // PUT api/volunteer/<ID>
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value) {
-            throw new NotImplementedException();
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id) {
-            throw new NotImplementedException();
+        public async Task Put(int id, [FromBody]Volunteer volunteer) {
+             _context.Update(volunteer);
+            await _context.SaveChangesAsync();
         }
     }
 }

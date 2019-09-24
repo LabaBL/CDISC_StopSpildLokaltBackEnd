@@ -14,11 +14,13 @@ namespace CDISC_StopSpildLokaltBackEnd {
         public DbSet<Volunteer> Volunteers { get; set; }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Identification> Identifications { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.Entity<Volunteer>().ToTable("Volunteer");
             modelBuilder.Entity<Team>().ToTable("Team");
             modelBuilder.Entity<Identification>().ToTable("Identification");
+            modelBuilder.Entity<Organization>().ToTable("Organization");
         }
     }
 
