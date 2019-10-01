@@ -6,8 +6,8 @@ namespace CDISC_StopSpildLokaltBackEnd {
 
     //https://docs.microsoft.com/en-us/ef/core/get-started/aspnetcore/new-db?tabs=visual-studio
 
-    public class SSLContext : DbContext {
-        public SSLContext(DbContextOptions<SSLContext> options) : base(options) {
+    public class OrganizationalDBContext : DbContext {
+        public OrganizationalDBContext(DbContextOptions<OrganizationalDBContext> options) : base(options) {
 
         }
 
@@ -21,6 +21,10 @@ namespace CDISC_StopSpildLokaltBackEnd {
             modelBuilder.Entity<Team>().ToTable("Team");
             modelBuilder.Entity<Identification>().ToTable("Identification");
             modelBuilder.Entity<Organization>().ToTable("Organization");
+            //modelBuilder.Entity<Volunteer>()
+            //    .HasOne(v => v.Identification)
+            //    .WithOne(i => i.Volunteer)
+            //    .HasForeignKey<Identification>(i => i.Volunteer);
         }
     }
 

@@ -11,25 +11,22 @@ namespace CDISC_StopSpildLokaltBackEnd {
     [Route("api/[controller]")]
     public class TeamController : Controller {
 
-        private readonly SSLContext _context;
+        private readonly OrganizationalDBContext _context;
 
-        public TeamController(SSLContext context) {
+        public TeamController(OrganizationalDBContext context) {
             _context = context;
         }
 
-        // GET: api/teams
-        [HttpGet]
+        [HttpGet("/teams")]
         public IEnumerable<Team> Get() {
             return _context.Teams;
         }
 
-        // GET api/team/<ID>
         [HttpGet("{id}")]
         public async Task<Team> Get(int id) {
             return await _context.Teams.Where(t => t.Id == id).FirstOrDefaultAsync<Team>();
         }
 
-        // POST api/team
         [HttpPost]
         public async Task<int> Post([FromBody]Team team) {
             var res = await _context.AddAsync(team); //TODO Procedurally generated id?
@@ -40,7 +37,6 @@ namespace CDISC_StopSpildLokaltBackEnd {
             return team.Id;
         }
 
-        // PUT api/values/5
         [HttpPut("{id}")]
         public async Task Put(int id, [FromBody]Team team) {
             _context.Update(team);

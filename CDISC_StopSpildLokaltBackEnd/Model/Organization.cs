@@ -13,6 +13,6 @@ namespace CDISC_StopSpildLokaltBackEnd {
         [Required]
         public string Name { get; set; }
         public List<Volunteer> Volunteers { get; set; }
-        public List<Team> teams { get; set; }
+        public List<Team> Teams { get; set; }
     }
 }

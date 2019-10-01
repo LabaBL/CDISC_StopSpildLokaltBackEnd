@@ -17,33 +17,23 @@ namespace CDISC_StopSpildLokaltBackEnd {
             _context = context;
         }
 
-        // GET: api/organizations
-        [HttpGet]
+        [HttpGet("/organizations")]
         public async Task<IEnumerable<Organization>> Get() {
             return await Task.FromResult<IEnumerable<Organization>>(_context.Organizations);
         }
 
-        // GET api/organization/<ID>
         [HttpGet("{id}")]
         public async Task<Organization> Get(int id) {
             return await _context.Organizations.Where(t => t.Id == id).FirstOrDefaultAsync<Organization>();
         }
 
-        // POST api/values
         [HttpPost]
         public void Post([FromBody]Organization value) {
             throw new NotImplementedException();
         }
 
-        // PUT api/values/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value) {
-            throw new NotImplementedException();
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id) {
             throw new NotImplementedException();
         }
     }

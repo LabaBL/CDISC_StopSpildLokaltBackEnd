@@ -13,6 +13,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
         public DateTime CreatedTs { get; set; }
         [Required, StringLength(4, ErrorMessage = "Postcodes must have a length of 4 digits.")]
         public string Postcode { get; set; }
+        public string Address { get; set; }
         [Required]
         public string TeamName { get; set; }
         public string Description { get; set; }

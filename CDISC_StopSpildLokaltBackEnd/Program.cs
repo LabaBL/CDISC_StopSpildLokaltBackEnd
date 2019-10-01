@@ -17,7 +17,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
             using (var scope = host.Services.CreateScope()) {
                 var services = scope.ServiceProvider;
                 try {
-                    var context = services.GetRequiredService<SSLContext>();
+                    var context = services.GetRequiredService<OrganizationalDBContext>();
                     context.Database.EnsureCreated();
                     // Here database can be initialized and populated with data before startup
 

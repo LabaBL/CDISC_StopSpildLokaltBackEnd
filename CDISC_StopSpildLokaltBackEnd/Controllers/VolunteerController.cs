@@ -11,34 +11,29 @@ namespace CDISC_StopSpildLokaltBackEnd {
     [Route("api/[controller]")]
     public class VolunteerController : Controller {
 
-        private readonly SSLContext _context;
+        private readonly OrganizationalDBContext _context;
 
-        public VolunteerController(SSLContext context) {
+        public VolunteerController(OrganizationalDBContext context) {
             _context = context;
         }
 
-        // GET: api/volunteers/team/<ID>
-        [HttpGet]
-        public IEnumerable<string> GetTeamVolunteers() {
+        [HttpGet("/volunteers/team/{id}")]
+        public IEnumerable<string> GetTeamVolunteers(int id) {
             throw new NotImplementedException();
         }
 
-        // GET: api/volunteer/identification/<ID>
-        [HttpGet("{id}")]
-        public async Task<Identification> Identification(int id) {
+        [HttpGet("/identification/{identifcationId}")]
+        public async Task<Identification> Identification(int identifcationId) {
             //TODO How is an Identification updated? (IDEA: Thread created by Cron job that updates all Identifications daily)
-            var volunteer = await _context.Volunteers.Where(v => v.Id == id).FirstOrDefaultAsync<Volunteer>();
+            var volunteer = await _context.Volunteers.Where(v => v.Id == identifcationId).FirstOrDefaultAsync<Volunteer>();
             return volunteer.Identification;    
         }
 
-
-        // GET api/volunteer/<ID>
         [HttpGet("{id}")]
         public async Task<Volunteer> Get(int id) {
             return await _context.Volunteers.Where(v => v.Id == id).FirstOrDefaultAsync<Volunteer>();    //.First  SingleOrDefaultAsync(v => v.Id.Equals(id));
         }
 
-        // POST api/volunteer
         [HttpPost]
         public async Task<int> Post([FromBody]Volunteer volunteer) {
             volunteer.CreatedTs = DateTime.Now;
@@ -47,7 +42,6 @@ namespace CDISC_StopSpildLokaltBackEnd {
             return volunteer.Id; //TODO Test that ID been set here
         }
 
-        // PUT api/volunteer/<ID>
         [HttpPut("{id}")]
         public async Task Put(int id, [FromBody]Volunteer volunteer) {
              _context.Update(volunteer);
