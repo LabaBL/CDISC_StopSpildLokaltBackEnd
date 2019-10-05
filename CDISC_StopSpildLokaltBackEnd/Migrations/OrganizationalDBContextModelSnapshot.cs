@@ -30,13 +30,12 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
 
             modelBuilder.Entity("CDISC_StopSpildLokaltBackEnd.Organization", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<string>("Name")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Name")
-                        .IsRequired();
+                    b.Property<DateTime>("CreatedTs");
 
-                    b.HasKey("Id");
+                    b.HasKey("Name");
 
                     b.ToTable("Organization");
                 });
@@ -48,7 +47,7 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
 
                     b.Property<string>("Address");
 
-                    b.Property<int>("ContactPersonId");
+                    b.Property<int?>("ContactPersonId");
 
                     b.Property<DateTime>("CreatedTs");
 
@@ -56,20 +55,17 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
 
                     b.Property<string>("FacebookUrl");
 
-                    b.Property<int>("OrganizationId");
+                    b.Property<string>("OrganizationName");
 
-                    b.Property<string>("Postcode")
-                        .IsRequired()
-                        .HasMaxLength(4);
+                    b.Property<string>("Postcode");
 
-                    b.Property<string>("TeamName")
-                        .IsRequired();
+                    b.Property<string>("TeamName");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ContactPersonId");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationName");
 
                     b.ToTable("Team");
                 });
@@ -91,7 +87,7 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
 
                     b.Property<string>("LastName");
 
-                    b.Property<int?>("OrganizationId");
+                    b.Property<string>("OrganizationName");
 
                     b.Property<string>("Phonenumber");
 
@@ -106,7 +102,7 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                     b.HasIndex("IdentificationId")
                         .IsUnique();
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationName");
 
                     b.HasIndex("TeamId");
 
@@ -117,13 +113,11 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                 {
                     b.HasOne("CDISC_StopSpildLokaltBackEnd.Volunteer", "ContactPerson")
                         .WithMany()
-                        .HasForeignKey("ContactPersonId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ContactPersonId");
 
                     b.HasOne("CDISC_StopSpildLokaltBackEnd.Organization", "Organization")
                         .WithMany("Teams")
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("OrganizationName");
                 });
 
             modelBuilder.Entity("CDISC_StopSpildLokaltBackEnd.Volunteer", b =>
@@ -135,7 +129,7 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
 
                     b.HasOne("CDISC_StopSpildLokaltBackEnd.Organization", "Organization")
                         .WithMany("Volunteers")
-                        .HasForeignKey("OrganizationId");
+                        .HasForeignKey("OrganizationName");
 
                     b.HasOne("CDISC_StopSpildLokaltBackEnd.Team")
                         .WithMany("Volunteers")

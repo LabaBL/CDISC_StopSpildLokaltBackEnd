@@ -22,25 +22,77 @@ namespace CDISC_StopSpildLokaltBackEnd {
             return _context.Teams;
         }
 
-        [HttpGet("{id}")]
-        public async Task<Team> Get(int id) {
-            return await _context.Teams.Where(t => t.Id == id).FirstOrDefaultAsync<Team>();
+        [HttpGet("team/{id}")]
+        public async Task<IActionResult> Get(int id) {
+            var team = await _context.Teams.Where(t => t.Id == id).FirstOrDefaultAsync<Team>();
+            if (team == null) return NotFound();
+
+            return Json(team);
         }
 
         [HttpPost]
-        public async Task<int> Post([FromBody]Team team) {
-            var res = await _context.AddAsync(team); //TODO Procedurally generated id?
+        public async Task<IActionResult> Post([FromBody]TeamDTO teamDTO) {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
-            team.CreatedTs = DateTime.Now;
+            Organization org = await _context.Organizations.Where(o => o.Name == teamDTO.OrganizationName).FirstOrDefaultAsync();
+            if (!String.IsNullOrWhiteSpace(teamDTO.OrganizationName) && org == null) {
+                return BadRequest("Specified organization does not exist");
+            }
 
+            var team = new Team {
+                CreatedTs = DateTime.Now,
+                Postcode = teamDTO.Postcode,
+                Address = teamDTO.Address,
+                TeamName = teamDTO.TeamName,
+                Description = teamDTO.Description,
+                FacebookUrl = teamDTO.FacebookUrl,
+                Organization = org
+            };
+
+            await _context.AddAsync(team);
             await _context.SaveChangesAsync();
-            return team.Id;
+            return Ok(team.Id);
         }
 
-        [HttpPut("{id}")]
-        public async Task Put(int id, [FromBody]Team team) {
+        [HttpPut("/team/setContactPerson/{id}")]
+        public async Task<IActionResult> UpdateContactPerson(int id, [FromBody]int volunteerId) {
+            Volunteer contactPerson = await _context.Volunteers.Where(v => v.Id == volunteerId).FirstOrDefaultAsync();
+            if (contactPerson == null) return BadRequest("No Volunteer exist with the specified id.");
+
+            var team = await _context.Teams.FindAsync(id);
+            if (team == null) return BadRequest("No Team exist with the specified id.");
+
+            team.ContactPerson = contactPerson; 
             _context.Update(team);
             await _context.SaveChangesAsync();
+
+            return Json(team);
+        }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody]TeamDTO teamDTO) {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+
+            var team = await _context.Teams.FindAsync(id);
+            if (team == null) return NotFound();
+
+            if(teamDTO.OrganizationName != null) {
+                var org = await _context.Organizations.FindAsync(teamDTO.OrganizationName);
+                if (org == null) return BadRequest("Specified organization does not exist");
+                team.Organization = org;
+            }
+
+            if (teamDTO.Postcode != null) team.Postcode = teamDTO.Postcode;
+            if (teamDTO.Address != null) team.Address = teamDTO.Address;
+            if (teamDTO.TeamName != null) team.TeamName = teamDTO.TeamName;
+            if (teamDTO.Description != null) team.Description = teamDTO.Description;
+            if (teamDTO.FacebookUrl != null) team.FacebookUrl = teamDTO.FacebookUrl;
+
+            _context.Update(team);
+            await _context.SaveChangesAsync();
+
+            return Json(team);
         }
     }
 }

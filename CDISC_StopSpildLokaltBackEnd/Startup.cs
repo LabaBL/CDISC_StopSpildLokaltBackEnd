@@ -27,7 +27,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<OrganizationalDBContext>(options =>
-                options.UseSqlite("Data Source=blogging.db"));
+                options.UseSqlite("Data Source=cross_disc.db"));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>

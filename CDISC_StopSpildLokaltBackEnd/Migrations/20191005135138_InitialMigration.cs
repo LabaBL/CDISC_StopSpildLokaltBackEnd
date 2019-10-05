@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CDISC_StopSpildLokaltBackEnd.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -24,13 +24,12 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                 name: "Organization",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(nullable: false)
+                    Name = table.Column<string>(nullable: false),
+                    CreatedTs = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Organization", x => x.Id);
+                    table.PrimaryKey("PK_Organization", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,7 +46,7 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                     Phonenumber = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true),
                     VolunteerType = table.Column<int>(nullable: false),
-                    OrganizationId = table.Column<int>(nullable: true),
+                    OrganizationName = table.Column<string>(nullable: true),
                     IdentificationId = table.Column<int>(nullable: false),
                     TeamId = table.Column<int>(nullable: true)
                 },
@@ -61,10 +60,10 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Volunteer_Organization_OrganizationId",
-                        column: x => x.OrganizationId,
+                        name: "FK_Volunteer_Organization_OrganizationName",
+                        column: x => x.OrganizationName,
                         principalTable: "Organization",
-                        principalColumn: "Id",
+                        principalColumn: "Name",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -74,14 +73,14 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ContactPersonId = table.Column<int>(nullable: false),
-                    OrganizationId = table.Column<int>(nullable: false),
                     CreatedTs = table.Column<DateTime>(nullable: false),
-                    Postcode = table.Column<string>(maxLength: 4, nullable: false),
+                    Postcode = table.Column<string>(nullable: true),
                     Address = table.Column<string>(nullable: true),
-                    TeamName = table.Column<string>(nullable: false),
+                    TeamName = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
-                    FacebookUrl = table.Column<string>(nullable: true)
+                    FacebookUrl = table.Column<string>(nullable: true),
+                    OrganizationName = table.Column<string>(nullable: true),
+                    ContactPersonId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -91,13 +90,13 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                         column: x => x.ContactPersonId,
                         principalTable: "Volunteer",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Team_Organization_OrganizationId",
-                        column: x => x.OrganizationId,
+                        name: "FK_Team_Organization_OrganizationName",
+                        column: x => x.OrganizationName,
                         principalTable: "Organization",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Name",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -106,9 +105,9 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                 column: "ContactPersonId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Team_OrganizationId",
+                name: "IX_Team_OrganizationName",
                 table: "Team",
-                column: "OrganizationId");
+                column: "OrganizationName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Volunteer_IdentificationId",
@@ -117,9 +116,9 @@ namespace CDISC_StopSpildLokaltBackEnd.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Volunteer_OrganizationId",
+                name: "IX_Volunteer_OrganizationName",
                 table: "Volunteer",
-                column: "OrganizationId");
+                column: "OrganizationName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Volunteer_TeamId",

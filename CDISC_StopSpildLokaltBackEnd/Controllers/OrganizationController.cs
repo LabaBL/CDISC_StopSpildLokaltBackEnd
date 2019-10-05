@@ -22,19 +22,30 @@ namespace CDISC_StopSpildLokaltBackEnd {
             return await Task.FromResult<IEnumerable<Organization>>(_context.Organizations);
         }
 
-        [HttpGet("{id}")]
-        public async Task<Organization> Get(int id) {
-            return await _context.Organizations.Where(t => t.Id == id).FirstOrDefaultAsync<Organization>();
+        [HttpGet("{name}")]
+        public async Task<IActionResult> Get(string name) {
+            var org = await _context.Organizations.FindAsync(name);
+            if (org == null) return NotFound();
+
+            return Json(org);
         }
 
         [HttpPost]
-        public void Post([FromBody]Organization value) {
-            throw new NotImplementedException();
-        }
+        public async Task<IActionResult> Post([FromBody]OrganizationDTO organizationDTO) {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value) {
-            throw new NotImplementedException();
+            var org = await _context.Organizations.FindAsync(organizationDTO.Name);
+            if (org != null) return BadRequest("Organization with the specified name already exists.");
+
+            var organization = new Organization {
+                CreatedTs = DateTime.Now,
+                Name = organizationDTO.Name
+            };
+
+            await _context.AddAsync(organization);
+            await _context.SaveChangesAsync();
+
+            return Json(organization);
         }
     }
 }
