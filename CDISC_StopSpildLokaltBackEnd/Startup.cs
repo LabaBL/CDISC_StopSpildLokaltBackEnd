@@ -13,9 +13,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using CDISC_StopSpildLokaltBackEnd;
 using Swashbuckle.AspNetCore.Swagger;
+using Hangfire;
 
 namespace CDISC_StopSpildLokaltBackEnd {
     public class Startup {
+        private static readonly string cronSchedule = "0 0 3 1/1 * ? *";
+
         public Startup(IConfiguration configuration) {
             Configuration = configuration;
         }
@@ -34,6 +37,8 @@ namespace CDISC_StopSpildLokaltBackEnd {
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
             });
+
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, IdentificationUpdater>();
 
         }
 
@@ -55,9 +60,12 @@ namespace CDISC_StopSpildLokaltBackEnd {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            var updater = IdentificationUpdater.Instance;
+            updater.setDBContext();
+            RecurringJob.AddOrUpdate(() => updater.RefreshIdentifications(), cronSchedule);
         }
     }
 }

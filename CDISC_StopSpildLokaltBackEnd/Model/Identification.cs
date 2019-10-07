@@ -6,8 +6,8 @@ namespace CDISC_StopSpildLokaltBackEnd {
         [Key]
         public int Id { get; set; }
         public DateTime CreatedTs { get; set; }
+        public Guid UniqueToken { get; set; }
 
-        //public int VolunteerId { get; set; }
         public Volunteer Volunteer { get; set; }
     }
 }

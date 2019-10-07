@@ -1,23 +1,59 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 
 namespace CDISC_StopSpildLokaltBackEnd {
-    public class IdentificationUpdater : IHostedService {
+    public class IdentificationUpdater {
 
-        private static string cron = "0 0 3 1/1 * ? *";
-        // https://thinkrethink.net/2018/05/31/run-scheduled-background-tasks-in-asp-net-core/
+        private static Object lockObject = new Object();
 
-        public IdentificationUpdater() {
+        private readonly OrganizationalDBContext _context;
+
+        public IdentificationUpdater(OrganizationalDBContext context) {
+            _context = context;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken) {
-            throw new NotImplementedException();
-        }
+        public void RefreshIdentifications() {
+            lock(lockObject) {
 
-        public Task StopAsync(CancellationToken cancellationToken) {
-            throw new NotImplementedException();
+
+                //TODO New Volunteers must have their Identification setup at creation
+                //TODO Get all Volunteers
+
+                var volunteers = _context.Volunteers;
+
+                foreach (Volunteer v in volunteers) {
+
+                    // Remove existing Identification
+                    if (v.Identification != null) {
+                        _context.Identifications.Remove(v.Identification);
+
+                        v.IdentificationId = -1;
+                        v.Identification = null;
+                        _context.Update(v);
+                    }
+
+                    // If still active, create new Identification
+                    if(v.VolunteerType.Equals(VolunteerType.VOLUNTEER) || v.VolunteerType.Equals(VolunteerType.CONTACT_PERSON) || v.VolunteerType.Equals(VolunteerType.TRIAL)) {
+
+                        var identification = new Identification {
+                            CreatedTs = DateTime.Now,
+                            Volunteer = v,
+                            UniqueToken = Guid.NewGuid()
+                        };
+
+                        _context.Add(identification);
+
+                        v.Identification = identification;
+                        v.IdentificationId = identification.Id;
+                        _context.Update(v);
+                    }
+
+                    _context.SaveChanges();
+                } //TODO Does this work?
+            }
         }
     }
 }
