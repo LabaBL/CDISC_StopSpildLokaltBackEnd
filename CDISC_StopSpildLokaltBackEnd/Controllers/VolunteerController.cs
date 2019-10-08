@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -41,12 +43,18 @@ namespace CDISC_StopSpildLokaltBackEnd {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
             Organization org = await _context.Organizations.Where(o => o.Name == volunteerDTO.OrganizationName).FirstOrDefaultAsync();
-            if (!String.IsNullOrWhiteSpace(volunteerDTO.OrganizationName) && org == null) {
+            if (!string.IsNullOrWhiteSpace(volunteerDTO.OrganizationName) && org == null) {
                 return BadRequest("Specified organization does not exist");
             }
 
-            var volunteer = new Volunteer
-            {
+            var identification = new Identification {
+                LastUpdatedTs = DateTime.Now,
+                Active = true
+            };
+
+            await _context.AddAsync(identification); // Create Identification
+
+            var volunteer = new Volunteer {
                 CreatedTs = DateTime.Now,
                 AuthToken = volunteerDTO.AuthToken,
                 FirstName = volunteerDTO.FirstName,
@@ -55,10 +63,27 @@ namespace CDISC_StopSpildLokaltBackEnd {
                 Phonenumber = volunteerDTO.Phonenumber,
                 Email = volunteerDTO.Email,
                 VolunteerType = volunteerDTO.VolunteerType,
-                Organization = org
+                Organization = org,
+                Identification = identification
             };
 
-            await _context.AddAsync(volunteer);
+            await _context.AddAsync(volunteer); // Create Volunteer
+
+            using (SHA256 sha256Hash = SHA256.Create()) {
+
+                string stringToBeHashed = $"{identification.Id}{volunteerDTO.LastName}{volunteerDTO.Phonenumber}{volunteerDTO.Email}{volunteer.Id}";
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(stringToBeHashed));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++) {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+
+                identification.UniqueToken = builder.ToString();
+                identification.Volunteer = volunteer; // Tie Volunteer to Identification
+                //_context.Update(identification); //TODO Is this necessary?
+            }
+
             await _context.SaveChangesAsync();
             return Ok(volunteer.Id);
         }
