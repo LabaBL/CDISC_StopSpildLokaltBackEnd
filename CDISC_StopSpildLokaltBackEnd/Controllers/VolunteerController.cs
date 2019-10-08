@@ -26,11 +26,10 @@ namespace CDISC_StopSpildLokaltBackEnd {
 
         [HttpGet("/identification/{identifcationId}")]
         public async Task<IActionResult> Identification(int identifcationId) {
-            //TODO How is an Identification updated? (IDEA: Thread created by Cron job that updates all Identifications daily)
             var volunteer = await _context.Volunteers.Where(v => v.Id == identifcationId).FirstOrDefaultAsync<Volunteer>();
             if (volunteer == null) return NotFound();
 
-            return Json(volunteer.Identification); //TODO Is Identification fetched through link?
+            return Json(await _context.Identifications.FindAsync(volunteer.IdentificationId));
         }
 
         [HttpGet("{id}")]
@@ -86,6 +85,24 @@ namespace CDISC_StopSpildLokaltBackEnd {
 
             await _context.SaveChangesAsync();
             return Ok(volunteer.Id);
+        }
+
+        [HttpPut("/{id}?volunteerType={volunteerType}")]
+        public async Task<IActionResult> UpdateVolunteerType(int id, string volunteerType) {
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+
+            var volunteer = await _context.Volunteers.FindAsync(id);
+            if (volunteer == null) return BadRequest("Specified Volunteer does not exist.");
+
+            VolunteerType parsedVolunteerType;
+            var validVolunteerType = Enum.TryParse(volunteerType, false, out parsedVolunteerType);
+            if(!validVolunteerType || !Enum.IsDefined(typeof(VolunteerType), parsedVolunteerType)) return BadRequest("Invalid VolunteerType specified.");
+
+            volunteer.VolunteerType = parsedVolunteerType;
+            _context.Update(volunteer);
+            await _context.SaveChangesAsync();
+
+            return Json(volunteer);
         }
 
         [HttpPut("{id}")]
