@@ -63,9 +63,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
             app.UseHttpsRedirection();
             app.UseMvc();
 
-            var updater = IdentificationUpdater.Instance;
-            updater.setDBContext();
-            RecurringJob.AddOrUpdate(() => updater.RefreshIdentifications(), cronSchedule);
+            RecurringJob.AddOrUpdate(() => new IdentificationUpdater(app.ApplicationServices.GetRequiredService<OrganizationalDBContext>()).RefreshIdentifications(), cronSchedule);
         }
     }
 }
