@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using CDISC_StopSpildLokaltBackEnd;
-using Swashbuckle.AspNetCore.Swagger;
 using Hangfire;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace CDISC_StopSpildLokaltBackEnd {
     public class Startup {
@@ -27,23 +20,30 @@ namespace CDISC_StopSpildLokaltBackEnd {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddDbContext<OrganizationalDBContext>(options =>
-                options.UseSqlite("Data Source=cross_disc.db"));
+            services.AddDbContext<OrganizationalDBContext>(options => options.UseSqlite("Data Source=cross_disc.db"));
+            services.AddTransient<OrganizationalDBContext, OrganizationalDBContext>();
+
+            services.AddControllers();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
             });
 
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, IdentificationUpdater>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, IdentificationUpdater>()
+
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
@@ -61,7 +61,14 @@ namespace CDISC_StopSpildLokaltBackEnd {
             });
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                // Mapping of endpoints goes here:
+                endpoints.MapControllers();
+            });
 
             RecurringJob.AddOrUpdate(() => new IdentificationUpdater(app.ApplicationServices.GetRequiredService<OrganizationalDBContext>()).RefreshIdentifications(), cronSchedule);
         }

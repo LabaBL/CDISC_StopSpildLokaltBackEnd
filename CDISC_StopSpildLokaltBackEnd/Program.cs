@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -18,12 +13,8 @@ namespace CDISC_StopSpildLokaltBackEnd {
                 var services = scope.ServiceProvider;
                 try {
                     var context = services.GetRequiredService<OrganizationalDBContext>();
+
                     context.Database.EnsureCreated();
-                    // Here database can be initialized and populated with data before startup
-
-                    //TODO Create the DB through CLI
-
-                    //DbInitializer.Initialize(context);
                 }
                 catch (Exception ex) {
                     var logger = services.GetRequiredService<ILogger<Program>>();

@@ -24,7 +24,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
             throw new NotImplementedException();
         }
 
-        [HttpGet("/identification/{identifcationId}")]
+        [HttpGet("/identification/{identificationId}")]
         public async Task<IActionResult> Identification(int identifcationId) {
             var volunteer = await _context.Volunteers.Where(v => v.Id == identifcationId).FirstOrDefaultAsync<Volunteer>();
             if (volunteer == null) return NotFound();
@@ -87,7 +87,8 @@ namespace CDISC_StopSpildLokaltBackEnd {
             return Ok(volunteer.Id);
         }
 
-        [HttpPut("/{id}?volunteerType={volunteerType}")]
+        //[HttpPut("/{id}?volunteerType={volunteerType}")]
+        [HttpPut("/{id}")]
         public async Task<IActionResult> UpdateVolunteerType(int id, string volunteerType) {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
@@ -126,7 +127,7 @@ namespace CDISC_StopSpildLokaltBackEnd {
             if (volunteerDTO.Email != null) volunteer.Email = volunteerDTO.Email;
 
             //TODO Fix this
-            if (volunteerDTO.VolunteerType != null) volunteer.VolunteerType = volunteerDTO.VolunteerType;
+            //if (volunteerDTO.VolunteerType != null) volunteer.VolunteerType = volunteerDTO.VolunteerType;
 
             _context.Update(volunteer);
             await _context.SaveChangesAsync();

@@ -1,4 +1,0 @@
-﻿o Update ContactPerson - /team/setContactPerson
-o How to send map json VolunteerType to enumtype
-o Update Identification, CRON job
-o Update status of Volunteer (PATCH)
